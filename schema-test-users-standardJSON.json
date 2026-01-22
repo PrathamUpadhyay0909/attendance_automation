@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "_id",
+    "__v",
+    "createdAt",
+    "email",
+    "isDisabled",
+    "name",
+    "password",
+    "role",
+    "updatedAt"
+  ],
+  "properties": {
+    "_id": {
+      "$ref": "#/$defs/ObjectId"
+    },
+    "__v": {
+      "type": "integer"
+    },
+    "bankDetails": {
+      "type": "object",
+      "required": [
+        "otherDocuments"
+      ],
+      "properties": {
+        "accountHolderName": {
+          "type": "string"
+        },
+        "accountNumber": {
+          "type": "string"
+        },
+        "branchName": {
+          "type": "string"
+        },
+        "chequeImage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ifscCode": {
+          "type": "string"
+        },
+        "otherDocuments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bloodGroup": {
+      "type": "string"
+    },
+    "createdAt": {
+      "$ref": "#/$defs/Date"
+    },
+    "dateOfBirth": {
+      "type": "string"
+    },
+    "dateOfJoining": {
+      "type": "string"
+    },
+    "deletedBy": {
+      "type": "object",
+      "required": [
+        "adminEmail",
+        "adminId",
+        "adminName",
+        "deletedAt"
+      ],
+      "properties": {
+        "adminEmail": {
+          "type": "string"
+        },
+        "adminId": {
+          "$ref": "#/$defs/ObjectId"
+        },
+        "adminName": {
+          "type": "string"
+        },
+        "deletedAt": {
+          "$ref": "#/$defs/Date"
+        }
+      }
+    },
+    "designation": {
+      "type": "string"
+    },
+    "deviceId": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "emergencyContactNumber": {
+      "type": "string"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ObjectId"
+      }
+    },
+    "isDeleted": {
+      "type": "boolean"
+    },
+    "isDisabled": {
+      "type": "boolean"
+    },
+    "isWorkFromHome": {
+      "type": "boolean"
+    },
+    "name": {
+      "type": "string"
+    },
+    "notifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ObjectId"
+      }
+    },
+    "organization": {
+      "$ref": "#/$defs/ObjectId"
+    },
+    "password": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "profilePhoto": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "refreshToken": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "role": {
+      "type": "string"
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": []
+      }
+    },
+    "updatedAt": {
+      "$ref": "#/$defs/Date"
+    }
+  },
+  "$defs": {
+    "ObjectId": {
+      "type": "object",
+      "properties": {
+        "$oid": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{24}$"
+        }
+      },
+      "required": [
+        "$oid"
+      ],
+      "additionalProperties": false
+    },
+    "Date": {
+      "type": "object",
+      "properties": {
+        "$date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "$date"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

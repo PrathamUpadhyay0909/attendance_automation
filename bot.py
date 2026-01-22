@@ -263,7 +263,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         user_sessions[user_id]['last_query'] = message_text
         
         # Send response
-        await update.message.reply_text(response, parse_mode='Markdown')
+        try:
+            await update.message.reply_text(response, parse_mode='Markdown')
+        except Exception as e:
+            logger.warning(f"Markdown parsing failed, sending plain text: {e}")
+            await update.message.reply_text(response)
     except Exception as e:
         logger.error(f"Error processing message: {e}")
         await update.message.reply_text(

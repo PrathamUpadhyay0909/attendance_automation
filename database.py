@@ -21,7 +21,12 @@ class DatabaseHandler:
         """Initialize database connection."""
         self.client: Optional[MongoClient] = None
         self.db = None
-        self._connect()
+        try:
+            self._connect()
+        except Exception as e:
+            logger.error(f"Failed to initialize database connection: {e}")
+            self.client = None
+            self.db = None
     
     def _connect(self) -> None:
         """Establish connection to MongoDB."""

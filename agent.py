@@ -6,7 +6,8 @@ Implements intelligent natural language processing for HR queries.
 import logging
 from typing import Optional, Dict
 from langchain_groq import ChatGroq
-from langchain.agents import create_react_agent, AgentExecutor
+from langchain_openai import ChatOpenAI
+from langchain.agents import initialize_agent, AgentType
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from config import config
@@ -273,37 +274,73 @@ class HRAgent:
             memory_key="chat_history",
             return_messages=True
         )
-        self._initialize_agent()
+        # self._initialize_agent() # Defer initialization
     
-    def _initialize_agent(self) -> None:
-        """Initialize the LangChain agent with Groq LLM."""
+    def initialize(self, provider: str = "groq") -> None:
+        """
+        Initialize the agent with the selected provider.
+        
+        Args:
+            provider: 'groq' or 'openrouter'
+        """
         try:
-            # Initialize Groq LLM
-            self.llm = ChatGroq(
-                groq_api_key=config.GROQ_API_KEY,
-                model_name=config.GROQ_MODEL,
-                temperature=config.AGENT_TEMPERATURE,
-                max_tokens=2048
-            )
+            if provider.lower() == "openrouter":
+                if not config.OPENROUTER_API_KEY:
+                    raise ValueError("OPENROUTER_API_KEY is not set")
+                    
+                logger.info("Initializing with OpenRouter...")
+                self.llm = ChatOpenAI(
+                    api_key=config.OPENROUTER_API_KEY,
+                    base_url="https://openrouter.ai/api/v1",
+                    model=config.OPENROUTER_MODEL,
+                    temperature=config.AGENT_TEMPERATURE,
+                    max_tokens=2048
+                )
+            else:
+                # Default to Groq
+                if not config.GROQ_API_KEY:
+                    raise ValueError("GROQ_API_KEY is not set")
+                    
+                logger.info("Initializing with Groq...")
+                self.llm = ChatGroq(
+                    groq_api_key=config.GROQ_API_KEY,
+                    model_name=config.GROQ_MODEL,
+                    temperature=config.AGENT_TEMPERATURE,
+                    max_tokens=2048
+                )
             
-            # Create ReAct agent
-            self.agent = create_react_agent(
+            # Prepare tool information
+            tool_names = ", ".join([t.name for t in tools])
+            # Escape curly braces in descriptions to prevent formatting errors
+            tool_strings = "\n".join([f"{t.name}: {t.description.replace('{', '{{').replace('}', '}}')}" for t in tools])
+            
+            # Manually format the prompt prefix
+            # We remove {agent_scratchpad} because initialize_agent adds its own suffix containing it
+            formatted_prefix = AGENT_SYSTEM_PROMPT.replace("{tools}", tool_strings)\
+                                                  .replace("{tool_names}", tool_names)\
+                                                  .replace("{agent_scratchpad}", "")
+            
+            if "{tools}" in formatted_prefix or "{tool_names}" in formatted_prefix:
+                logger.error("CRITICAL: Prompt formatting failed! Placeholders still present.")
+                # Fallback: force remove if replace failed for some reason
+                formatted_prefix = formatted_prefix.replace("{tools}", "").replace("{tool_names}", "")
+            else:
+                logger.info("Prompt formatted successfully - placeholders replaced.")
+            
+            # Initialize agent using initialize_agent (legacy but stable)
+            self.agent_executor = initialize_agent(
+                tools=tools,
                 llm=self.llm,
-                tools=tools,
-                prompt=prompt
-            )
-            
-            # Create agent executor
-            self.agent_executor = AgentExecutor(
-                agent=self.agent,
-                tools=tools,
+                agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
                 verbose=True,
                 max_iterations=config.AGENT_MAX_ITERATIONS,
                 handle_parsing_errors=True,
-                return_intermediate_steps=False
+                agent_kwargs={
+                    "prefix": formatted_prefix
+                }
             )
             
-            logger.info("HR Agent initialized successfully")
+            logger.info(f"HR Agent initialized successfully with {provider}")
         except Exception as e:
             logger.error(f"Failed to initialize agent: {e}")
             raise
@@ -319,6 +356,9 @@ class HRAgent:
         Returns:
             The agent's formatted response
         """
+        if not self.agent_executor:
+            return "⚠️ Agent is not initialized. Please check backend logs or restart the application."
+
         try:
             # Add user context to query if provided
             if user_context:

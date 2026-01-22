@@ -22,10 +22,15 @@ class Config:
     
     # Groq API Configuration
     GROQ_API_KEY: str
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
     
     # Telegram Bot Configuration
     TELEGRAM_BOT_TOKEN: str
+    
+    # OpenRouter API Configuration
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_MODEL: str = "openai/gpt-3.5-turbo"
+    
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
     
     # Agent Configuration
     AGENT_MAX_ITERATIONS: int = 10
@@ -37,7 +42,7 @@ class Config:
     # Application Settings
     MAX_CONTEXT_LENGTH: int = 4096
     RESPONSE_TIMEOUT: int = 30  # seconds
-    
+
     @classmethod
     def from_env(cls) -> "Config":
         """Create configuration from environment variables."""
@@ -45,6 +50,8 @@ class Config:
             MONGODB_URI=os.getenv("MONGODB_URI", "mongodb://localhost:27017"),
             MONGODB_DB_NAME=os.getenv("MONGODB_DB_NAME", "hr_system"),
             GROQ_API_KEY=os.getenv("GROQ_API_KEY", ""),
+            OPENROUTER_API_KEY=os.getenv("OPENROUTER_API_KEY", ""),
+            OPENROUTER_MODEL=os.getenv("OPENROUTER_MODEL", "openai/gpt-3.5-turbo"),
             GROQ_MODEL=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
             TELEGRAM_BOT_TOKEN=os.getenv("TELEGRAM_BOT_TOKEN", ""),
             AGENT_MAX_ITERATIONS=int(os.getenv("AGENT_MAX_ITERATIONS", "10")),
@@ -58,8 +65,11 @@ class Config:
         """Validate that required configuration is present."""
         if not self.MONGODB_URI:
             raise ValueError("MONGODB_URI is required")
-        if not self.GROQ_API_KEY:
-            raise ValueError("GROQ_API_KEY is required")
+        
+        # Check that at least one LLM provider is configured
+        if not self.GROQ_API_KEY and not self.OPENROUTER_API_KEY:
+            raise ValueError("Either GROQ_API_KEY or OPENROUTER_API_KEY is required")
+            
         if not self.TELEGRAM_BOT_TOKEN:
             raise ValueError("TELEGRAM_BOT_TOKEN is required")
 

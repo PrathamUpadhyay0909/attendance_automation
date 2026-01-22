@@ -94,13 +94,21 @@ def get_employee_attendance_summary(user_id: str, days: int = 30) -> str:
     Get attendance summary for an employee for the last N days.
     
     Args:
-        user_id: Employee's MongoDB ObjectId as string
+        user_id: Employee's MongoDB ObjectId or string "user_id,days"
         days: Number of days to look back (default: 30)
     
     Returns:
         Formatted attendance summary or error message
     """
     try:
+        # Handle composite input "user_id,days"
+        if isinstance(user_id, str) and "," in user_id:
+            try:
+                parts = user_id.split(",")
+                user_id = parts[0].strip()
+                days = int(parts[1].strip())
+            except ValueError:
+                pass  # Use default days if parsing fails
         if not ObjectId.is_valid(user_id):
             return f"❌ Invalid user ID format: {user_id}"
         
@@ -152,13 +160,21 @@ def mark_attendance(user_id: str, punch_in_time: Optional[str] = None) -> str:
     Mark attendance for an employee for today.
     
     Args:
-        user_id: Employee's MongoDB ObjectId as string
+        user_id: Employee's MongoDB ObjectId or string "user_id,time"
         punch_in_time: Punch-in time in HH:MM format (optional, defaults to now)
     
     Returns:
         Confirmation message or error
     """
     try:
+        # Handle composite input "user_id,time"
+        if isinstance(user_id, str) and "," in user_id:
+            try:
+                parts = user_id.split(",")
+                user_id = parts[0].strip()
+                punch_in_time = parts[1].strip()
+            except ValueError:
+                pass
         if not ObjectId.is_valid(user_id):
             return f"❌ Invalid user ID format: {user_id}"
         
@@ -243,13 +259,21 @@ def get_department_attendance_report(designation: str, days: int = 30) -> str:
     Get attendance report for an entire department.
     
     Args:
-        designation: Department or designation name
+        designation: Department name or string "designation,days"
         days: Number of days to look back (default: 30)
     
     Returns:
         Formatted department attendance report or error message
     """
     try:
+        # Handle composite input "designation,days"
+        if isinstance(designation, str) and "," in designation:
+            try:
+                parts = designation.split(",")
+                designation = parts[0].strip()
+                days = int(parts[1].strip())
+            except ValueError:
+                pass
         # Get all users in department
         users = db_handler.get_users_by_department(designation)
         

@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "_id",
+    "__v",
+    "areaRestriction",
+    "createdAt",
+    "date",
+    "organization",
+    "punchIn",
+    "punchInLocation",
+    "punchOut",
+    "punchOutLocation",
+    "status",
+    "totalWorkingHours",
+    "updatedAt",
+    "userId"
+  ],
+  "properties": {
+    "_id": {
+      "$ref": "#/$defs/ObjectId"
+    },
+    "__v": {
+      "type": "integer"
+    },
+    "areaRestriction": {
+      "type": "object",
+      "required": [
+        "coordinates",
+        "radius",
+        "type"
+      ],
+      "properties": {
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Double"
+          }
+        },
+        "radius": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "createdAt": {
+      "$ref": "#/$defs/Date"
+    },
+    "date": {
+      "$ref": "#/$defs/Date"
+    },
+    "isWorkFromHome": {
+      "type": "boolean"
+    },
+    "organization": {
+      "$ref": "#/$defs/ObjectId"
+    },
+    "punchIn": {
+      "type": "string"
+    },
+    "punchInLocation": {
+      "type": "object",
+      "required": [
+        "coordinates",
+        "type"
+      ],
+      "properties": {
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Double"
+          }
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "punchOut": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "punchOutLocation": {
+      "type": "object",
+      "required": [
+        "coordinates",
+        "type"
+      ],
+      "properties": {
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Double"
+          }
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "status": {
+      "type": "string"
+    },
+    "totalWorkingHours": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Double"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "updatedAt": {
+      "$ref": "#/$defs/Date"
+    },
+    "userId": {
+      "$ref": "#/$defs/ObjectId"
+    }
+  },
+  "$defs": {
+    "ObjectId": {
+      "type": "object",
+      "properties": {
+        "$oid": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{24}$"
+        }
+      },
+      "required": [
+        "$oid"
+      ],
+      "additionalProperties": false
+    },
+    "Double": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "$numberDouble": {
+              "enum": [
+                "Infinity",
+                "-Infinity",
+                "NaN"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Date": {
+      "type": "object",
+      "properties": {
+        "$date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "$date"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
